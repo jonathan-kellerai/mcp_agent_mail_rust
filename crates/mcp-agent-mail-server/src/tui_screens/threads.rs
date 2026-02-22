@@ -3209,7 +3209,7 @@ fn clip_line_to_display_width(line: Line, max_width: usize) -> Line {
     }
 
     let mut remaining = max_width;
-    let mut clipped: Vec<Span<'static>> = Vec::new();
+    let mut clipped: Vec<Span<'_>> = Vec::new();
     for span in line.spans() {
         if remaining == 0 {
             break;

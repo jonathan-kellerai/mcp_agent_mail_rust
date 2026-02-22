@@ -4137,7 +4137,7 @@ fn render_event_mix_panel(
         lines.push(Line::from_spans([
             Span::styled("• ", crate::tui_theme::text_meta(&tp)),
             Span::styled(
-                truncate(&kind, 12),
+                truncate(&kind, 12).to_owned(),
                 Style::default().fg(tp.text_primary).bold(),
             ),
             Span::raw(" "),

@@ -1367,12 +1367,12 @@ impl LogPane {
     }
 
     /// Append a log line (plain text or ANSI-stripped).
-    pub fn push(&mut self, line: impl Into<ftui::text::Text>) {
+    pub fn push<'a>(&mut self, line: impl Into<ftui::text::Text<'a>>) {
         self.viewer.push(line);
     }
 
     /// Append multiple lines efficiently.
-    pub fn push_many(&mut self, lines: impl IntoIterator<Item = impl Into<ftui::text::Text>>) {
+    pub fn push_many<'a>(&mut self, lines: impl IntoIterator<Item = impl Into<ftui::text::Text<'a>>>) {
         self.viewer.push_many(lines);
     }
 

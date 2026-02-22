@@ -107,7 +107,7 @@ pub(crate) struct TimelineEntry {
 }
 
 impl RenderItem for TimelineEntry {
-    fn render(&self, area: Rect, frame: &mut Frame, selected: bool) {
+    fn render(&self, area: Rect, frame: &mut Frame, selected: bool, _skip_rows: u16) {
         use ftui::widgets::Widget;
 
         if area.height == 0 || area.width < 10 {
@@ -217,7 +217,7 @@ impl CommitTimelineEntry {
 }
 
 impl RenderItem for CommitTimelineEntry {
-    fn render(&self, area: Rect, frame: &mut Frame, selected: bool) {
+    fn render(&self, area: Rect, frame: &mut Frame, selected: bool, _skip_rows: u16) {
         use ftui::widgets::Widget;
 
         if area.height == 0 || area.width < 10 {
@@ -282,10 +282,10 @@ impl CombinedTimelineRow {
 }
 
 impl RenderItem for CombinedTimelineRow {
-    fn render(&self, area: Rect, frame: &mut Frame, selected: bool) {
+    fn render(&self, area: Rect, frame: &mut Frame, selected: bool, _skip_rows: u16) {
         match self {
-            Self::Event(entry) => entry.render(area, frame, selected),
-            Self::Commit(entry) => entry.render(area, frame, selected),
+            Self::Event(entry) => entry.render(area, frame, selected, _skip_rows),
+            Self::Commit(entry) => entry.render(area, frame, selected, _skip_rows),
         }
     }
 

@@ -520,7 +520,7 @@ fn analytics_table_backgrounds(
     (table_base_bg, header_bg, even_row_bg, odd_row_bg)
 }
 
-fn confidence_bar_colored(confidence: f64, severity: AnomalySeverity) -> ftui::text::Line {
+fn confidence_bar_colored(confidence: f64, severity: AnomalySeverity) -> ftui::text::Line<'static> {
     use ftui::text::{Line, Span};
 
     let confidence = confidence.clamp(0.0, 1.0);

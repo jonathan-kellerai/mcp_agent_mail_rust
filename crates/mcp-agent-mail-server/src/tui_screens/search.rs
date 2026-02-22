@@ -469,7 +469,7 @@ struct ResultEntry {
     /// Full message body for markdown preview (messages only).
     full_body: Option<String>,
     /// Pre-rendered markdown body (messages only) to avoid per-frame markdown parsing.
-    rendered_body: Option<Text>,
+    rendered_body: Option<Text<'static>>,
     score: Option<f64>,
     importance: Option<String>,
     ack_required: Option<bool>,
@@ -591,6 +591,7 @@ fn derive_tui_degraded_diagnostics(
 struct SearchResultRow {
     entry: ResultEntry,
     /// Cached highlight terms for rendering (shared across all rows).
+    #[allow(dead_code)]
     highlight_terms: Arc<Vec<QueryTerm>>,
     /// Lowercased positive needles cached once per result refresh.
     highlight_needles: Arc<Vec<String>>,
@@ -600,7 +601,7 @@ struct SearchResultRow {
 
 impl RenderItem for SearchResultRow {
     #[allow(clippy::too_many_lines)]
-    fn render(&self, area: Rect, frame: &mut Frame, selected: bool) {
+    fn render(&self, area: Rect, frame: &mut Frame, selected: bool, _skip_rows: u16) {
         use ftui::widgets::Widget;
 
         if area.height == 0 || area.width < 10 {
@@ -1162,9 +1163,9 @@ pub struct SearchCockpitScreen {
     /// Small animation phase for header/status flourish.
     ui_phase: u8,
     /// Cached markdown render for selected message bodies, keyed by message id.
-    rendered_markdown_cache: RefCell<HashMap<(i64, &'static str), Arc<Text>>>,
+    rendered_markdown_cache: RefCell<HashMap<(i64, &'static str), Arc<Text<'static>>>>,
     /// Cached detail panel text for selected entries, keyed by (id, kind, theme).
-    rendered_detail_cache: RefCell<HashMap<DetailCacheKey, Arc<Text>>>,
+    rendered_detail_cache: RefCell<HashMap<DetailCacheKey, Arc<Text<'static>>>>,
 }
 
 impl SearchCockpitScreen {
@@ -1246,7 +1247,7 @@ impl SearchCockpitScreen {
     }
 
     /// Return cached markdown render for a message entry, generating lazily.
-    fn cached_rendered_markdown(&self, entry: &ResultEntry) -> Option<Arc<Text>> {
+    fn cached_rendered_markdown(&self, entry: &ResultEntry) -> Option<Arc<Text<'static>>> {
         if entry.doc_kind != DocKind::Message {
             return None;
         }
@@ -1270,7 +1271,7 @@ impl SearchCockpitScreen {
     }
 
     /// Return cached detail text for an entry, generating lazily.
-    fn cached_rendered_detail(&self, entry: &ResultEntry) -> Arc<Text> {
+    fn cached_rendered_detail(&self, entry: &ResultEntry) -> Arc<Text<'static>> {
         let theme_key = crate::tui_theme::current_theme_env_value();
         let cache_key = (entry.id, entry.doc_kind.as_str(), theme_key);
         if let Some(existing) = self.rendered_detail_cache.borrow().get(&cache_key) {
@@ -3063,6 +3064,7 @@ struct SearchableLine {
     text: String,
 }
 
+#[allow(dead_code)]
 fn markdown_to_searchable_lines(markdown: &str) -> Vec<SearchableLine> {
     markdown_to_searchable_lines_with_caps(
         markdown,
@@ -3760,7 +3762,7 @@ struct ResultListRenderCfg<'a> {
 
 #[allow(dead_code)]
 #[allow(clippy::too_many_lines)]
-fn result_entry_line(entry: &ResultEntry, is_cursor: bool, cfg: &ResultListRenderCfg<'_>) -> Line {
+fn result_entry_line(entry: &ResultEntry, is_cursor: bool, cfg: &ResultListRenderCfg<'_>) -> Line<'static> {
     let marker = if is_cursor { '>' } else { ' ' };
 
     let kind_badge = match entry.doc_kind {
@@ -4107,9 +4109,9 @@ fn compose_detail_text(
     entry: &ResultEntry,
     highlight_terms: &[QueryTerm],
     diagnostics: Option<&SearchDegradedDiagnostics>,
-    rendered_body_override: Option<&Text>,
+    rendered_body_override: Option<&Text<'static>>,
     tp: &crate::tui_theme::TuiThemePalette,
-) -> Text {
+) -> Text<'static> {
     let label_style = Style::default().fg(FACET_LABEL_FG());
     let highlight_style = Style::default().fg(RESULT_CURSOR_FG()).bold();
     let value_style = crate::tui_theme::text_primary(tp);
@@ -4323,8 +4325,8 @@ fn render_detail(
     scroll: usize,
     highlight_terms: &[QueryTerm],
     diagnostics: Option<&SearchDegradedDiagnostics>,
-    rendered_body_override: Option<&Text>,
-    rendered_detail_override: Option<&Text>,
+    rendered_body_override: Option<&Text<'static>>,
+    rendered_detail_override: Option<&Text<'static>>,
     focused: bool,
 ) {
     let tp = crate::tui_theme::TuiThemePalette::current();

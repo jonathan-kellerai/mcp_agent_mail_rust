@@ -184,7 +184,7 @@ struct MessageEntry {
 }
 
 impl RenderItem for MessageEntry {
-    fn render(&self, area: Rect, frame: &mut Frame, selected: bool) {
+    fn render(&self, area: Rect, frame: &mut Frame, selected: bool, _skip_rows: u16) {
         self.render_row(
             area,
             frame,
@@ -443,7 +443,7 @@ struct MessageDropVisual<'a> {
 }
 
 impl RenderItem for MessageRenderRow<'_> {
-    fn render(&self, area: Rect, frame: &mut Frame, selected: bool) {
+    fn render(&self, area: Rect, frame: &mut Frame, selected: bool, _skip_rows: u16) {
         self.entry.render_row(
             area,
             frame,
@@ -3079,7 +3079,7 @@ fn looks_like_json(body: &str) -> bool {
 /// immediately followed (ignoring whitespace) by a `Punctuation` token whose
 /// text is `:` is classified as a key.
 #[allow(dead_code)] // kept for tests and fallback experiments; main path uses markdown rendering.
-fn colorize_json_body(body: &str, tp: &crate::tui_theme::TuiThemePalette) -> Text {
+fn colorize_json_body(body: &str, tp: &crate::tui_theme::TuiThemePalette) -> Text<'static> {
     let tokenizer = JsonTokenizer;
     let key_style = crate::tui_theme::style_json_key(tp);
     let string_style = crate::tui_theme::style_json_string(tp);
@@ -3087,7 +3087,7 @@ fn colorize_json_body(body: &str, tp: &crate::tui_theme::TuiThemePalette) -> Tex
     let literal_style = crate::tui_theme::style_json_literal(tp);
     let punct_style = crate::tui_theme::style_json_punctuation(tp);
 
-    let mut lines: Vec<Line> = Vec::new();
+    let mut lines: Vec<Line<'static>> = Vec::new();
     let mut state = LineState::Normal;
 
     for raw_line in body.split('\n') {
@@ -3097,7 +3097,7 @@ fn colorize_json_body(body: &str, tp: &crate::tui_theme::TuiThemePalette) -> Tex
         state = new_state;
 
         if tokens.is_empty() {
-            lines.push(Line::raw(line));
+            lines.push(Line::raw(line.to_owned()));
             continue;
         }
 

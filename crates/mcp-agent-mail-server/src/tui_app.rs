@@ -1951,6 +1951,7 @@ impl MailAppModel {
             ThemeId::LumenLight => "solarized",
             ThemeId::NordicFrost => "nord",
             ThemeId::HighContrast => "gruvbox",
+            _ => "default",
         }
     }
 
